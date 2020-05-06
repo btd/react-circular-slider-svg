@@ -1,0 +1,28 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.MobileSlider {
+  .CircularSlider-track {
+    stroke-width: 13px;
+    stroke: #cecece;
+    stroke-linecap: round;
+    fill: none;
+  }
+
+  .CircularSlider-fill {
+    stroke: #1980D0;
+    stroke-width: 13px;
+
+    stroke-linecap: round;
+    fill: none;
+  }
+
+  .CircularSlider-handle {
+    stroke: #fff;
+    stroke-width: 5px;
+    r: 11px;
+    fill: #1980D0;
+  }
+}
