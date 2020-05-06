@@ -10,6 +10,7 @@ import { isNotTouchEvent, trimAlignValue } from "./utils";
 
 export const CircularSlider = ({
   svgSize,
+  handleRadius,
   maxValue,
   minValue,
   angleType,
@@ -176,6 +177,7 @@ export const CircularSlider = ({
         <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       </filter>
       <circle
+        r={handleRadius}
         cx={handlePosition.x}
         cy={handlePosition.y}
         filter="url(#handleShadow)"
@@ -188,6 +190,7 @@ export const CircularSlider = ({
 
 CircularSlider.defaultProps = {
   svgSize: 200,
+  handleRadius: 10,
   minValue: 0,
   maxValue: 100,
   stepValue: 1,

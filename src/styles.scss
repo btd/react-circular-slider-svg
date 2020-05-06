@@ -1,9 +1,55 @@
+body {
+  background-color: #F4F4F4;
+}
+
 .App {
   font-family: sans-serif;
   text-align: center;
 }
 
 .MobileSlider {
+  position: relative;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+  &-value {
+    position: absolute;
+    top: 80px;
+    left: calc(50% - 50px);
+    width:100px;
+    text-align: center;
+    color: #1980D0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  &-valueNote {
+    font-weight: normal;
+    font-size: 14px;
+  }
+
+  &-minValueLabel {
+    position: absolute;
+    color: #6E6E6E;
+    font-size: 12px;
+    right: calc(50% + 90px);
+    top: 162px;
+  }
+
+  &-maxValueLabel {
+    position: absolute;
+    color: #6E6E6E;
+    font-size: 12px;
+    left: calc(50% + 90px);
+    top: 162px;
+  }
+
+  .CircularSlider {
+    position: absolute;
+    top: 0;
+    left: calc(50% - 110px);
+    z-index: 1;
+  }
+
   .CircularSlider-track {
     stroke-width: 13px;
     stroke: #cecece;
@@ -22,7 +68,6 @@
   .CircularSlider-handle {
     stroke: #fff;
     stroke-width: 5px;
-    r: 11px;
     fill: #1980D0;
   }
 }
