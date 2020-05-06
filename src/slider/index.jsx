@@ -6,10 +6,7 @@ import {
   angleToValue
 } from "./circularGeometry";
 import { arcShapedPath } from "./svgPaths";
-
-const isNotTouchEvent = event =>
-  event.touches.length > 1 ||
-  (event.type.toLowerCase() === "touchend" && event.touches.length > 0);
+import { isNotTouchEvent, trimAlignValue } from "./utils";
 
 export const CircularSlider = ({
   svgSize,
@@ -21,7 +18,7 @@ export const CircularSlider = ({
   value,
   onChange,
   disabled,
-  coerceToInt
+  stepValue
 }) => {
   const svgRef = React.useRef();
   const handleRef = React.useRef();
@@ -38,6 +35,7 @@ export const CircularSlider = ({
     if (isNotTouchEvent(event)) {
       return;
     }
+
     processSelection(event.touches[0].clientX, event.touches[0].clientY);
   };
 
@@ -58,6 +56,7 @@ export const CircularSlider = ({
     }
     processSelection(event.clientX, event.clientY);
   };
+
   const onTouchStart = event => {
     if (isNotTouchEvent(event)) {
       return;
@@ -74,6 +73,7 @@ export const CircularSlider = ({
     }
     processSelection(event.touches[0].clientX, event.touches[0].clientY);
   };
+
   const removeListeners = () => {
     const svg = svgRef.current;
     if (svg) {
@@ -93,7 +93,7 @@ export const CircularSlider = ({
     svgPoint.y = y;
     const coordsInSvg = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
     const angle = positionToAngle(coordsInSvg, svgSize, angleType);
-    let value = angleToValue({
+    const value = angleToValue({
       angle,
       minValue,
       maxValue,
@@ -101,14 +101,23 @@ export const CircularSlider = ({
       endAngle
     });
 
+    const alignedValue = trimAlignValue(value, {
+      minValue,
+      stepValue,
+      maxValue
+    });
+
     if (!disabled) {
-      onChange(value);
+      onChange(alignedValue);
     }
   };
 
   const trackRadius = svgSize / 2 - 20;
+
+  const alignedValue = trimAlignValue(value, { minValue, stepValue, maxValue });
+
   const handleAngle = valueToAngle({
-    value,
+    value: alignedValue,
     minValue,
     maxValue,
     startAngle,
@@ -181,6 +190,7 @@ CircularSlider.defaultProps = {
   svgSize: 200,
   minValue: 0,
   maxValue: 100,
+  stepValue: 1,
   startAngle: 0,
   endAngle: 360,
   angleType: {

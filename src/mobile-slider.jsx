@@ -6,6 +6,11 @@ const Slider = () => {
 
   return (
     <div className="MobileSlider">
+      <div className="MobileSlider-value">
+        {value} EUR
+        <br />
+        monatlich
+      </div>
       <CircularSlider
         svgSize={220}
         value={value}
