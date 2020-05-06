@@ -152,6 +152,9 @@ export const CircularSlider = ({
     svgSize
   );
 
+  // TODO if we ever need support for Accessibility there,
+  // need to wrap handle to <a> and add onBlur and onFocus events
+
   return (
     <svg
       width={svgSize}
@@ -197,6 +200,7 @@ export const CircularSlider = ({
         <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="5" />
         <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       </filter>
+
       <circle
         r={handleRadius}
         cx={handlePosition.x}

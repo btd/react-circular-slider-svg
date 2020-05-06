@@ -13,6 +13,7 @@ export function angleToValue(params) {
     return value;
   }
 }
+
 export function valueToAngle(params) {
   const { value, minValue, maxValue, startAngle, endAngle } = params;
   if (endAngle <= startAngle) {
@@ -22,6 +23,7 @@ export function valueToAngle(params) {
   const angle = ratio * (endAngle - startAngle) + startAngle;
   return angle;
 }
+
 function convertAngle(degree, from, to) {
   to = to || { direction: "ccw", axis: "+x" };
   if (from.direction !== to.direction) {
@@ -56,6 +58,7 @@ function convertAngle(degree, from, to) {
       throw new Error("Unhandled conversion");
   }
 }
+
 export function angleToPosition(angle, radius, svgSize) {
   const angleConverted = convertAngle(angle.degree, angle, {
     direction: "ccw",
@@ -85,6 +88,7 @@ export function angleToPosition(angle, radius, svgSize) {
   const y = svgSize / 2 - dY;
   return { x, y };
 }
+
 export function positionToAngle(position, svgSize, angleType) {
   const dX = position.x - svgSize / 2;
   const dY = svgSize / 2 - position.y;
@@ -101,24 +105,4 @@ export function positionToAngle(position, svgSize, angleType) {
     },
     angleType
   );
-}
-export function semiCircle(opts) {
-  const { startAngle, endAngle, radius, svgSize, direction, angleType } = opts;
-  const startPosition = angleToPosition(
-    { degree: startAngle, ...angleType },
-    radius,
-    svgSize
-  );
-  const endPosition = angleToPosition(
-    { degree: endAngle, ...angleType },
-    radius,
-    svgSize
-  );
-  return `
-    M ${svgSize / 2},${svgSize / 2}
-    L ${startPosition.x},${startPosition.y}
-    A ${radius} ${radius} 0 ${direction === "cw" ? "1 1" : "0 0"}
-      ${endPosition.x} ${endPosition.y}
-    Z
-  `;
 }
