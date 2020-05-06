@@ -7,6 +7,10 @@ import {
 } from "./circularGeometry";
 import { arcShapedPath } from "./svgPaths";
 
+const isNotTouchEvent = event =>
+  event.touches.length > 1 ||
+  (event.type.toLowerCase() === "touchend" && event.touches.length > 0);
+
 export const CircularSlider = ({
   svgSize,
   maxValue,
@@ -20,37 +24,71 @@ export const CircularSlider = ({
   coerceToInt
 }) => {
   const svgRef = React.useRef();
-  const onMouseEnter = ev => {
-    // TODO
-    if (ev.buttons === 1) {
-      onMouseDown(ev);
+  const handleRef = React.useRef();
+
+  const onMouseMove = event => {
+    if (event.button !== 0) {
+      return;
     }
+
+    processSelection(event.clientX, event.clientY);
   };
-  const onMouseDown = ev => {
+
+  const onTouchMove = event => {
+    if (isNotTouchEvent(event)) {
+      return;
+    }
+    processSelection(event.touches[0].clientX, event.touches[0].clientY);
+  };
+
+  const onMouseDown = event => {
+    if (event.button !== 0) {
+      return;
+    }
+
+    if (event.target !== handleRef.current) {
+      return;
+    }
+
     const svg = svgRef.current;
     if (svg) {
-      svg.addEventListener("mousemove", processSelection);
-      svg.addEventListener("mouseleave", removeMouseListeners);
-      svg.addEventListener("mouseup", removeMouseListeners);
+      svg.addEventListener("mousemove", onMouseMove);
+      //  svg.addEventListener("mouseleave", removeMouseListeners);
+      svg.addEventListener("mouseup", removeListeners);
     }
-    processSelection(ev);
+    processSelection(event.clientX, event.clientY);
   };
-  const removeMouseListeners = () => {
+  const onTouchStart = event => {
+    if (isNotTouchEvent(event)) {
+      return;
+    }
+
+    if (event.target !== handleRef.current) {
+      return;
+    }
+
     const svg = svgRef.current;
     if (svg) {
-      svg.removeEventListener("mousemove", processSelection);
-      svg.removeEventListener("mouseleave", removeMouseListeners);
-      svg.removeEventListener("mouseup", removeMouseListeners);
+      svg.addEventListener("touchmove", onTouchMove);
+      svg.addEventListener("touchend", removeListeners);
+    }
+    processSelection(event.touches[0].clientX, event.touches[0].clientY);
+  };
+  const removeListeners = () => {
+    const svg = svgRef.current;
+    if (svg) {
+      svg.removeEventListener("mousemove", onMouseMove);
+      svg.removeEventListener("mouseup", removeListeners);
+      svg.removeEventListener("touchmove", onTouchMove);
+      svg.removeEventListener("touchend", removeListeners);
     }
   };
-  const processSelection = ev => {
+  const processSelection = (x, y) => {
     const svg = svgRef.current;
     if (!svg) {
       return;
     }
     const svgPoint = svg.createSVGPoint();
-    const x = ev.clientX;
-    const y = ev.clientY;
     svgPoint.x = x;
     svgPoint.y = y;
     const coordsInSvg = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
@@ -62,9 +100,7 @@ export const CircularSlider = ({
       startAngle,
       endAngle
     });
-    if (coerceToInt) {
-      value = Math.round(value);
-    }
+
     if (!disabled) {
       onChange(value);
     }
@@ -91,7 +127,7 @@ export const CircularSlider = ({
       height={svgSize}
       ref={svgRef}
       onMouseDown={onMouseDown}
-      onMouseEnter={onMouseEnter}
+      onTouchStart={onTouchStart}
       onClick={ev => !disabled && ev.stopPropagation()}
       className="CircularSlider"
     >
@@ -135,6 +171,7 @@ export const CircularSlider = ({
         cy={handlePosition.y}
         filter="url(#handleShadow)"
         className="CircularSlider-handle"
+        ref={handleRef}
       />
     </svg>
   );

@@ -7,7 +7,7 @@ const Slider = () => {
   return (
     <div className="MobileSlider">
       <CircularSlider
-        svgSize={240}
+        svgSize={220}
         value={value}
         onChange={setValue}
         startAngle={50}
