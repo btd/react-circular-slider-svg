@@ -11,6 +11,10 @@ body {
   position: relative;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 
+  &--dragging {
+    user-select: none;
+  }
+
   &-value {
     position: absolute;
     top: 80px;
@@ -29,6 +33,7 @@ body {
 
   &-minValueLabel {
     position: absolute;
+    z-index: -1;
     color: #6E6E6E;
     font-size: 12px;
     right: calc(50% + 90px);
@@ -37,6 +42,7 @@ body {
 
   &-maxValueLabel {
     position: absolute;
+    z-index: -1;
     color: #6E6E6E;
     font-size: 12px;
     left: calc(50% + 90px);
@@ -44,10 +50,8 @@ body {
   }
 
   .CircularSlider {
-    position: absolute;
-    top: 0;
-    left: calc(50% - 110px);
-    z-index: 1;
+    -webkit-overflow-scrolling: touch;
+    touch-action: none;
   }
 
   .CircularSlider-track {
@@ -69,5 +73,6 @@ body {
     stroke: #fff;
     stroke-width: 5px;
     fill: #1980D0;
+    touch-action: pan-x pan-y;
   }
 }

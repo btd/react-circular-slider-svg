@@ -49,3 +49,8 @@ export const trimAlignValue = (value, props) => {
   const val = ensureValueInRange(value, props);
   return ensureValuePrecision(val, props);
 };
+
+export const pauseEvent = event => {
+  event.preventDefault();
+  event.stopPropagation();
+};

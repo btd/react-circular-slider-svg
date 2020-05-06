@@ -6,7 +6,7 @@ import {
   angleToValue
 } from "./circularGeometry";
 import { arcShapedPath } from "./svgPaths";
-import { isNotTouchEvent, trimAlignValue } from "./utils";
+import { isNotTouchEvent, trimAlignValue, pauseEvent } from "./utils";
 
 export const CircularSlider = ({
   svgSize,
@@ -19,17 +19,37 @@ export const CircularSlider = ({
   value,
   onChange,
   disabled,
-  stepValue
+  stepValue,
+  onBeforeChange,
+  onAfterChange
 }) => {
   const svgRef = React.useRef();
   const handleRef = React.useRef();
+
+  const alignedValue = trimAlignValue(value, { minValue, stepValue, maxValue });
+
+  const onStart = ([x, y]) => {
+    onBeforeChange(alignedValue);
+    processSelection(x, y);
+  };
+
+  const onEnd = () => {
+    removeListeners();
+    onAfterChange(alignedValue);
+  };
+
+  const onMove = (event, [x, y]) => {
+    pauseEvent(event);
+
+    processSelection(x, y);
+  };
 
   const onMouseMove = event => {
     if (event.button !== 0) {
       return;
     }
 
-    processSelection(event.clientX, event.clientY);
+    onMove(event, [event.clientX, event.clientY]);
   };
 
   const onTouchMove = event => {
@@ -37,7 +57,7 @@ export const CircularSlider = ({
       return;
     }
 
-    processSelection(event.touches[0].clientX, event.touches[0].clientY);
+    onMove(event, [event.touches[0].clientX, event.touches[0].clientY]);
   };
 
   const onMouseDown = event => {
@@ -52,10 +72,9 @@ export const CircularSlider = ({
     const svg = svgRef.current;
     if (svg) {
       svg.addEventListener("mousemove", onMouseMove);
-      //  svg.addEventListener("mouseleave", removeMouseListeners);
-      svg.addEventListener("mouseup", removeListeners);
+      svg.addEventListener("mouseup", onEnd);
     }
-    processSelection(event.clientX, event.clientY);
+    onStart([event.clientX, event.clientY]);
   };
 
   const onTouchStart = event => {
@@ -67,21 +86,25 @@ export const CircularSlider = ({
       return;
     }
 
+    pauseEvent(event);
+
     const svg = svgRef.current;
     if (svg) {
       svg.addEventListener("touchmove", onTouchMove);
-      svg.addEventListener("touchend", removeListeners);
+      svg.addEventListener("touchend", onEnd);
+      document.addEventListener("touchmove", pauseEvent, { passive: false });
     }
-    processSelection(event.touches[0].clientX, event.touches[0].clientY);
+    onStart([event.touches[0].clientX, event.touches[0].clientY]);
   };
 
   const removeListeners = () => {
     const svg = svgRef.current;
     if (svg) {
       svg.removeEventListener("mousemove", onMouseMove);
-      svg.removeEventListener("mouseup", removeListeners);
+      svg.removeEventListener("mouseup", onEnd);
       svg.removeEventListener("touchmove", onTouchMove);
-      svg.removeEventListener("touchend", removeListeners);
+      svg.removeEventListener("touchend", onEnd);
+      document.removeEventListener("touchmove", pauseEvent, { passive: false });
     }
   };
   const processSelection = (x, y) => {
@@ -94,7 +117,7 @@ export const CircularSlider = ({
     svgPoint.y = y;
     const coordsInSvg = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
     const angle = positionToAngle(coordsInSvg, svgSize, angleType);
-    const value = angleToValue({
+    const newValue = angleToValue({
       angle,
       minValue,
       maxValue,
@@ -102,20 +125,18 @@ export const CircularSlider = ({
       endAngle
     });
 
-    const alignedValue = trimAlignValue(value, {
+    const alignedValue = trimAlignValue(newValue, {
       minValue,
       stepValue,
       maxValue
     });
 
-    if (!disabled) {
+    if (!disabled && value !== alignedValue) {
       onChange(alignedValue);
     }
   };
 
   const trackRadius = svgSize / 2 - 20;
-
-  const alignedValue = trimAlignValue(value, { minValue, stepValue, maxValue });
 
   const handleAngle = valueToAngle({
     value: alignedValue,
@@ -199,6 +220,8 @@ CircularSlider.defaultProps = {
   angleType: {
     direction: "cw",
     axis: "-y"
-  }
+  },
+  onBeforeChange: () => {},
+  onAfterChange: () => {}
 };
 export default CircularSlider;

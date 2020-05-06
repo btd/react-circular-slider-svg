@@ -1,14 +1,20 @@
 import React from "react";
+import classnames from "classnames";
 import CircularSlider from "./slider/index";
 import formatCurrency from "./format/currency";
 
 const Slider = () => {
   const [value, setValue] = React.useState(0);
+  const [dragging, setDragging] = React.useState(false);
   const minValue = 0;
   const maxValue = 3500;
 
   return (
-    <div className="MobileSlider">
+    <div
+      className={classnames("MobileSlider", {
+        "MobileSlider--dragging": dragging
+      })}
+    >
       <div className="MobileSlider-value">
         {formatCurrency(value)}
         <div className="MobileSlider-valueNote">monatlich</div>
@@ -29,6 +35,8 @@ const Slider = () => {
         minValue={minValue}
         maxValue={maxValue}
         stepValue={70}
+        onBeforeChange={() => setDragging(true)}
+        onAfterChange={() => setDragging(false)}
       />
     </div>
   );
